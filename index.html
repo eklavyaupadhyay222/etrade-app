@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>E-Trade Foreign Share Working</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; background: #f4f3ef; color: #2c2c2a; min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; padding: 2rem 1rem; }
+  .card { background: #fff; border-radius: 14px; border: 0.5px solid #d3d1c7; padding: 2rem; width: 100%; max-width: 680px; }
+  h1 { font-size: 1.25rem; font-weight: 600; margin-bottom: 0.25rem; }
+  .subtitle { font-size: 0.85rem; color: #5f5e5a; margin-bottom: 2rem; }
+  section { margin-bottom: 1.75rem; }
+  .section-label { font-size: 0.78rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: #888780; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 0.5px solid #d3d1c7; }
+  .field { margin-bottom: 1rem; }
+  label { display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.35rem; }
+  input[type="text"], select {
+    width: 100%; padding: 0.55rem 0.75rem; border: 0.5px solid #b4b2a9;
+    border-radius: 8px; font-size: 0.9rem; background: #fff; color: #2c2c2a;
+    outline: none; transition: border-color 0.15s;
+  }
+  input[type="text"]:focus, select:focus { border-color: #378add; box-shadow: 0 0 0 3px rgba(55,138,221,0.12); }
+  .file-zone {
+    border: 1.5px dashed #b4b2a9; border-radius: 10px; padding: 1rem 1.25rem;
+    cursor: pointer; transition: border-color 0.15s, background 0.15s; text-align: center;
+    background: #fafaf9;
+  }
+  .file-zone:hover { border-color: #378add; background: #f0f6fd; }
+  .file-zone input[type="file"] { display: none; }
+  .file-zone .icon { font-size: 1.5rem; margin-bottom: 0.4rem; }
+  .file-zone .hint { font-size: 0.82rem; color: #888780; margin-top: 0.25rem; }
+  .file-list { list-style: none; margin-top: 0.75rem; display: flex; flex-direction: column; gap: 4px; }
+  .file-list li { display: flex; align-items: center; justify-content: space-between; background: #f1efe8; border-radius: 6px; padding: 0.4rem 0.6rem; font-size: 0.82rem; }
+  .file-list li .remove { cursor: pointer; color: #993c1d; font-size: 1rem; line-height: 1; padding: 0 4px; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .btn-generate {
+    width: 100%; padding: 0.85rem; border: none; border-radius: 10px;
+    background: #1d9e75; color: #fff; font-size: 1rem; font-weight: 600;
+    cursor: pointer; transition: background 0.15s, opacity 0.15s;
+  }
+  .btn-generate:hover:not(:disabled) { background: #0f6e56; }
+  .btn-generate:disabled { opacity: 0.55; cursor: not-allowed; }
+  .btn-reset { width: 100%; padding: 0.7rem; border: 0.5px solid #b4b2a9; border-radius: 10px; background: transparent; font-size: 0.9rem; cursor: pointer; margin-top: 0.6rem; color: #444; }
+  .btn-reset:hover { background: #f1efe8; }
+  .alert { padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.875rem; margin-top: 1rem; display: none; }
+  .alert.error { background: #fcebeb; color: #793030; border: 0.5px solid #f7c1c1; }
+  .alert.success { background: #eaf3de; color: #3b6d11; border: 0.5px solid #c0dd97; }
+  .spinner { display: none; align-items: center; justify-content: center; gap: 8px; margin-top: 1rem; font-size: 0.875rem; color: #5f5e5a; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner svg { animation: spin 0.9s linear infinite; }
+  .preview-btn { font-size: 0.78rem; padding: 0.3rem 0.7rem; border: 0.5px solid #b4b2a9; border-radius: 6px; background: transparent; cursor: pointer; margin-top: 0.5rem; }
+  .preview-btn:hover { background: #f1efe8; }
+  .preview-table-wrap { overflow-x: auto; margin-top: 0.75rem; display: none; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+  th { background: #f1efe8; padding: 0.4rem 0.6rem; text-align: left; font-weight: 600; border-bottom: 0.5px solid #d3d1c7; }
+  td { padding: 0.35rem 0.6rem; border-bottom: 0.5px solid #f1efe8; }
+  tr:hover td { background: #fafaf9; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>E-Trade Foreign Share Working</h1>
+  <p class="subtitle">Upload your files, fill in client details, and download the formatted report.</p>
+
+  <!-- 1. Template -->
+  <section>
+    <p class="section-label">1. Master template</p>
+    <div class="file-zone" id="tpl-zone" onclick="document.getElementById('tpl-input').click()">
+      <input type="file" id="tpl-input" accept=".xlsx"/>
+      <div class="icon">📄</div>
+      <div>Click to select master template <strong>.xlsx</strong></div>
+      <div class="hint">One file only</div>
+    </div>
+    <ul class="file-list" id="tpl-list"></ul>
+  </section>
+
+  <!-- 2. Input files -->
+  <section>
+    <p class="section-label">2. Input data files</p>
+    <div class="field">
+      <label>G&L Excel files</label>
+      <div class="file-zone" id="gl-zone" onclick="document.getElementById('gl-input').click()">
+        <input type="file" id="gl-input" accept=".xlsx" multiple/>
+        <div class="icon">📊</div>
+        <div>Click to add <strong>G&L Excel</strong> files</div>
+        <div class="hint">Multiple files supported</div>
+      </div>
+      <ul class="file-list" id="gl-list"></ul>
+      <button class="preview-btn" id="gl-preview-btn" onclick="previewGL()" style="display:none">Preview capital gains →</button>
+      <div class="preview-table-wrap" id="gl-preview-wrap"><table id="gl-preview-table"></table></div>
+    </div>
+
+    <div class="field">
+      <label>Statement PDF files</label>
+      <div class="file-zone" id="pdf-zone" onclick="document.getElementById('pdf-input').click()">
+        <input type="file" id="pdf-input" accept=".pdf" multiple/>
+        <div class="icon">📑</div>
+        <div>Click to add <strong>Statement PDF</strong> files</div>
+        <div class="hint">Multiple files supported</div>
+      </div>
+      <ul class="file-list" id="pdf-list"></ul>
+      <button class="preview-btn" id="pdf-preview-btn" onclick="previewDivs()" style="display:none">Preview dividends →</button>
+      <div class="preview-table-wrap" id="pdf-preview-wrap"><table id="pdf-preview-table"></table></div>
+    </div>
+  </section>
+
+  <!-- 3. Client details -->
+  <section>
+    <p class="section-label">3. Client details</p>
+    <div class="row">
+      <div class="field">
+        <label for="client-name">Name</label>
+        <input type="text" id="client-name" placeholder="Full name"/>
+      </div>
+      <div class="field">
+        <label for="pan">PAN</label>
+        <input type="text" id="pan" placeholder="ABCDE1234F" maxlength="10"/>
+      </div>
+    </div>
+    <div class="field" style="max-width:220px">
+      <label for="fy">Financial year</label>
+      <select id="fy">
+        <option>FY 2023-24</option>
+        <option selected>FY 2024-25</option>
+        <option>FY 2025-26</option>
+      </select>
+    </div>
+  </section>
+
+  <!-- Actions -->
+  <button class="btn-generate" id="gen-btn" onclick="generate()">Generate Report</button>
+  <button class="btn-reset" onclick="resetForm()">Reset</button>
+
+  <div class="spinner" id="spinner">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2.5" stroke-linecap="round">
+      <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+    </svg>
+    Generating report…
+  </div>
+  <div class="alert error" id="alert-error"></div>
+  <div class="alert success" id="alert-success"></div>
+</div>
+
+<script>
+const API = "http://localhost:8000";
+
+let tplFile = null;
+const glFiles = [];
+const pdfFiles = [];
+
+function renderList(listEl, files, removeCallback) {
+  listEl.innerHTML = "";
+  files.forEach((f, i) => {
+    const li = document.createElement("li");
+    li.innerHTML = `<span>📎 ${f.name}</span><span class="remove" title="Remove" onclick="${removeCallback}(${i})">✕</span>`;
+    listEl.appendChild(li);
+  });
+}
+
+// Template
+document.getElementById("tpl-input").addEventListener("change", e => {
+  if (e.target.files[0]) { tplFile = e.target.files[0]; renderTpl(); }
+});
+function renderTpl() {
+  const ul = document.getElementById("tpl-list");
+  ul.innerHTML = tplFile ? `<li><span>📎 ${tplFile.name}</span><span class="remove" onclick="removeTpl()">✕</span></li>` : "";
+}
+function removeTpl() { tplFile = null; renderTpl(); document.getElementById("tpl-input").value = ""; }
+
+// GL files
+document.getElementById("gl-input").addEventListener("change", e => {
+  Array.from(e.target.files).forEach(f => glFiles.push(f));
+  renderGL();
+});
+function renderGL() {
+  renderList(document.getElementById("gl-list"), glFiles, "removeGL");
+  document.getElementById("gl-preview-btn").style.display = glFiles.length ? "inline-block" : "none";
+  document.getElementById("gl-preview-wrap").style.display = "none";
+}
+function removeGL(i) { glFiles.splice(i, 1); renderGL(); }
+
+// PDF files
+document.getElementById("pdf-input").addEventListener("change", e => {
+  Array.from(e.target.files).forEach(f => pdfFiles.push(f));
+  renderPDF();
+});
+function renderPDF() {
+  renderList(document.getElementById("pdf-list"), pdfFiles, "removePDF");
+  document.getElementById("pdf-preview-btn").style.display = pdfFiles.length ? "inline-block" : "none";
+  document.getElementById("pdf-preview-wrap").style.display = "none";
+}
+function removePDF(i) { pdfFiles.splice(i, 1); renderPDF(); }
+
+function buildFormData() {
+  const fd = new FormData();
+  if (tplFile) fd.append("template", tplFile);
+  glFiles.forEach(f  => fd.append("gl_files",  f));
+  pdfFiles.forEach(f => fd.append("pdf_files", f));
+  fd.append("client_name", document.getElementById("client-name").value.trim());
+  fd.append("pan_number",  document.getElementById("pan").value.trim());
+  fd.append("fy",          document.getElementById("fy").value);
+  return fd;
+}
+
+function showTable(tableEl, wrapEl, rows) {
+  if (!rows || rows.length === 0) { tableEl.innerHTML = "<tr><td>No rows found.</td></tr>"; wrapEl.style.display = "block"; return; }
+  const cols = Object.keys(rows[0]);
+  tableEl.innerHTML = "<thead><tr>" + cols.map(c => `<th>${c}</th>`).join("") + "</tr></thead>"
+    + "<tbody>" + rows.map(r => "<tr>" + cols.map(c => `<td>${r[c] ?? ""}</td>`).join("") + "</tr>").join("") + "</tbody>";
+  wrapEl.style.display = "block";
+}
+
+async function previewGL() {
+  if (!glFiles.length) return;
+  const fd = new FormData();
+  glFiles.forEach(f => fd.append("gl_files", f));
+  fd.append("fy", document.getElementById("fy").value);
+  try {
+    const res = await fetch(`${API}/preview-gl`, { method: "POST", body: fd });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || "Error");
+    showTable(document.getElementById("gl-preview-table"), document.getElementById("gl-preview-wrap"), data.rows);
+  } catch(e) { showError(e.message); }
+}
+
+async function previewDivs() {
+  if (!pdfFiles.length) return;
+  const fd = new FormData();
+  pdfFiles.forEach(f => fd.append("pdf_files", f));
+  fd.append("fy", document.getElementById("fy").value);
+  try {
+    const res = await fetch(`${API}/preview-dividends`, { method: "POST", body: fd });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || "Error");
+    showTable(document.getElementById("pdf-preview-table"), document.getElementById("pdf-preview-wrap"), data.rows);
+  } catch(e) { showError(e.message); }
+}
+
+async function generate() {
+  clearAlerts();
+  if (!tplFile) { showError("Please select a master template."); return; }
+  if (!document.getElementById("client-name").value.trim()) { showError("Please enter client name."); return; }
+  if (!document.getElementById("pan").value.trim()) { showError("Please enter PAN number."); return; }
+
+  setLoading(true);
+  try {
+    const res = await fetch(`${API}/generate`, { method: "POST", body: buildFormData() });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail || "Server error");
+    }
+    const blob = await res.blob();
+    const cd = res.headers.get("Content-Disposition") || "";
+    const name = (cd.match(/filename="(.+)"/) || [])[1] || "Foreign_Shares.xlsx";
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = name; a.click();
+    URL.revokeObjectURL(url);
+    showSuccess(`Report downloaded: ${name}`);
+  } catch(e) {
+    showError(e.message);
+  } finally {
+    setLoading(false);
+  }
+}
+
+function resetForm() {
+  tplFile = null; glFiles.length = 0; pdfFiles.length = 0;
+  renderTpl(); renderGL(); renderPDF();
+  document.getElementById("client-name").value = "";
+  document.getElementById("pan").value = "";
+  document.getElementById("fy").value = "FY 2024-25";
+  clearAlerts();
+}
+
+function setLoading(on) {
+  document.getElementById("gen-btn").disabled = on;
+  document.getElementById("spinner").style.display = on ? "flex" : "none";
+}
+function clearAlerts() {
+  ["alert-error", "alert-success"].forEach(id => { const el = document.getElementById(id); el.style.display = "none"; el.textContent = ""; });
+}
+function showError(msg) { const el = document.getElementById("alert-error"); el.textContent = msg; el.style.display = "block"; }
+function showSuccess(msg) { const el = document.getElementById("alert-success"); el.textContent = msg; el.style.display = "block"; }
+</script>
+</body>
+</html>
