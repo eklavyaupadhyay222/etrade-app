@@ -119,7 +119,7 @@
     </div>
     <div class="field" style="max-width:220px">
       <label for="fy">Financial year</label>
-      <select id="fy">
+      <select id="fy" onchange="saveFY(this.value)">
         <option>FY 2023-24</option>
         <option selected>FY 2024-25</option>
         <option>FY 2025-26</option>
@@ -159,13 +159,23 @@ function renderList(listEl, files, removeCallback) {
 
 // Template
 document.getElementById("tpl-input").addEventListener("change", e => {
-  if (e.target.files[0]) { tplFile = e.target.files[0]; renderTpl(); }
+  if (e.target.files[0]) {
+    tplFile = e.target.files[0];
+    localStorage.setItem("lastTemplateName", tplFile.name);
+    renderTpl();
+  }
 });
 function renderTpl() {
   const ul = document.getElementById("tpl-list");
-  ul.innerHTML = tplFile ? `<li><span>📎 ${tplFile.name}</span><span class="remove" onclick="removeTpl()">✕</span></li>` : "";
+  if (tplFile) {
+    ul.innerHTML = `<li><span>📎 ${tplFile.name}</span><span class="remove" onclick="removeTpl()">✕</span></li>`;
+  } else {
+    const last = localStorage.getItem("lastTemplateName");
+    ul.innerHTML = last ? `<li style="color:#888780;font-style:italic"><span>⚠️ Please re-select: ${last}</span></li>` : "";
+  }
 }
-function removeTpl() { tplFile = null; renderTpl(); document.getElementById("tpl-input").value = ""; }
+function removeTpl() { tplFile = null; localStorage.removeItem("lastTemplateName"); renderTpl(); document.getElementById("tpl-input").value = ""; }
+function saveFY(val) { localStorage.setItem("savedFY", val); }
 
 // GL files
 document.getElementById("gl-input").addEventListener("change", e => {
@@ -280,6 +290,17 @@ function clearAlerts() {
 }
 function showError(msg) { const el = document.getElementById("alert-error"); el.textContent = msg; el.style.display = "block"; }
 function showSuccess(msg) { const el = document.getElementById("alert-success"); el.textContent = msg; el.style.display = "block"; }
+
+// On page load — restore saved FY and show template reminder
+(function init() {
+  const savedFY = localStorage.getItem("savedFY");
+  if (savedFY) document.getElementById("fy").value = savedFY;
+  const lastName = localStorage.getItem("lastTemplateName");
+  if (lastName) {
+    const ul = document.getElementById("tpl-list");
+    ul.innerHTML = `<li style="color:#888780;font-style:italic"><span>⚠️ Please re-select: ${lastName}</span></li>`;
+  }
+})();
 </script>
 </body>
 </html>
