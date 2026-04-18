@@ -264,11 +264,10 @@ async function generate() {
 }
 
 function resetForm() {
-  tplFile = null; glFiles.length = 0; pdfFiles.length = 0;
-  renderTpl(); renderGL(); renderPDF();
+  glFiles.length = 0; pdfFiles.length = 0;
+  renderGL(); renderPDF();
   document.getElementById("client-name").value = "";
   document.getElementById("pan").value = "";
-  document.getElementById("fy").value = "FY 2024-25";
   clearAlerts();
 }
 
