@@ -7,7 +7,7 @@
 <style>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+*,*::before,*::after{box-sizing:border-box!important;margin:0;padding:0}
 
 :root{
   --bg:#080810;--surface:#0f0f1a;--surface2:#141426;--border:rgba(255,255,255,.07);
@@ -27,16 +27,16 @@ body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--tex
 @keyframes orb1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,30px) scale(1.1)}}
 @keyframes orb2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-30px,-40px) scale(1.08)}}
 .grid-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);background-size:44px 44px;z-index:1}
-.login-box{position:relative;z-index:10;width:100%;max-width:420px;margin:1rem}
-.login-logo{text-align:center;margin-bottom:2rem}
+.login-box{position:relative;z-index:10;width:100%;max-width:420px;margin:1rem;background:rgba(20,20,32,.85);border:1px solid rgba(255,255,255,.1);border-radius:22px;padding:2.5rem;backdrop-filter:blur(20px)}
+.login-logo{text-align:center;margin-bottom:1.75rem}
 .login-logo .icon{width:60px;height:60px;background:linear-gradient(135deg,#00d68f 0%,#00a86b 100%);border-radius:18px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:1rem;box-shadow:0 0 50px var(--green-glow),0 0 100px rgba(0,214,143,.08)}
 .login-logo h1{font-size:1.6rem;font-weight:700;color:#fff;letter-spacing:-.04em;margin-bottom:.25rem}
 .login-logo p{font-size:.72rem;color:var(--muted2);letter-spacing:.1em;text-transform:uppercase}
-.login-card-inner{background:rgba(255,255,255,.03);border:1px solid var(--border2);border-radius:20px;padding:2rem;backdrop-filter:blur(30px);box-shadow:0 20px 60px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.06)}
-.login-field{margin-bottom:1.1rem}
+.login-card-inner{background:transparent;border:none;border-radius:0;padding:0;width:100%;box-sizing:border-box}
+.login-field{margin-bottom:1.1rem;width:100%;box-sizing:border-box}
 .login-field label{display:block;font-size:.68rem;font-weight:600;color:var(--muted2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem}
-.login-input-wrap{position:relative}
-.login-input-wrap input{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;padding:.78rem 2.8rem .78rem 1rem;font-size:.92rem;color:#fff;font-family:'Space Grotesk',sans-serif;outline:none;transition:all .2s}
+.login-input-wrap{position:relative;width:100%;border-radius:12px}
+.login-input-wrap input{width:100%;box-sizing:border-box;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.14);border-radius:12px 12px 12px 12px;padding:.78rem 2.8rem .78rem 1rem;font-size:.92rem;color:#fff;font-family:'Space Grotesk',sans-serif;outline:none;transition:all .2s}
 .login-input-wrap input::placeholder{color:var(--muted)}
 .login-input-wrap input:focus{border-color:rgba(0,214,143,.5);box-shadow:0 0 0 3px var(--green-glow);background:rgba(0,214,143,.04)}
 .eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted2);font-size:11px;font-family:'Space Grotesk',sans-serif;padding:0;transition:color .15s;letter-spacing:.04em}
@@ -113,9 +113,11 @@ body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--tex
 /* ── INPUTS ── */
 .field{margin-bottom:1rem}
 .field label{display:block;font-size:.68rem;font-weight:600;color:var(--muted2);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.4rem}
-.dark-input{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:9px;padding:.65rem .9rem;font-size:.9rem;color:var(--text);font-family:'Space Grotesk',sans-serif;outline:none;transition:all .18s}
-.dark-input::placeholder{color:var(--muted)}
-.dark-input:focus{border-color:rgba(0,214,143,.5);box-shadow:0 0 0 3px var(--green-glow);background:rgba(0,214,143,.03)}
+.dark-input{width:100%;background:#1c1c28;border:1.5px solid rgba(255,255,255,.15);border-radius:12px 12px 12px 12px;padding:.68rem .9rem;font-size:.9rem;color:#f0eeea;font-family:'Inter',sans-serif;outline:none;transition:border-color .18s,box-shadow .18s;box-sizing:border-box;-webkit-appearance:none;appearance:none}
+.dark-input::placeholder{color:#444458}
+.dark-input:focus{border-color:rgba(29,158,117,.6);box-shadow:0 0 0 3px rgba(29,158,117,.1);background:#13131a}
+select.dark-input{background-color:#13131a;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:2.2rem;cursor:pointer}
+select.dark-input option{background:#13131a;color:#e2e0db}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
 
 /* ── BUTTONS ── */
@@ -149,9 +151,6 @@ tr:hover td{background:rgba(255,255,255,.02);color:#aaa}
 .divider{border:none;border-top:1px solid var(--border);margin:1.25rem 0}
 
 /* ── SELECT ── */
-select.dark-input{background-color:#161620;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:2rem;cursor:pointer}
-select.dark-input option{background:#161620;color:#e2e0db}
-input[type="text"].dark-input,input[type="password"].dark-input{color:#e2e0db}
 </style>
 </head>
 <body>
@@ -173,7 +172,7 @@ input[type="text"].dark-input,input[type="password"].dark-input{color:#e2e0db}
       <div class="login-field">
         <label>Username</label>
         <div class="login-input-wrap">
-          <input type="text" id="login-username" placeholder="Enter your username" autocomplete="off"
+          <input type="text" id="login-username" placeholder="Enter your username" autocomplete="off" style="border-radius:12px!important"
             onkeydown="if(event.key==='Enter') document.getElementById('login-pw-new').focus()"/>
         </div>
       </div>
@@ -284,11 +283,11 @@ input[type="text"].dark-input,input[type="password"].dark-input{color:#e2e0db}
       <div class="row2">
         <div class="field">
           <label>Name</label>
-          <input type="text" id="client-name" class="dark-input" placeholder="Full name"/>
+          <input type="text" id="client-name" class="dark-input" placeholder="Full name" autocomplete="off" autocorrect="off" spellcheck="false"/>
         </div>
         <div class="field">
           <label>PAN</label>
-          <input type="text" id="pan" class="dark-input" placeholder="ABCDE1234F" maxlength="10" style="text-transform:uppercase"/>
+          <input type="text" id="pan" class="dark-input" placeholder="ABCDE1234F" maxlength="10" autocomplete="off" style="text-transform:uppercase"/>
         </div>
       </div>
       <div class="field" style="max-width:220px">
@@ -550,6 +549,13 @@ function showSuccess(msg) { const el=document.getElementById("alert-success"); e
     const ul = document.getElementById("tpl-list");
     ul.innerHTML = `<li class="tpl-reminder"><span>⚠ Please re-select: ${lastName}</span></li>`;
   }
+  // Clear any browser-autofilled values in client fields
+  setTimeout(() => {
+    const cn = document.getElementById("client-name");
+    const pn = document.getElementById("pan");
+    if (cn && cn.value === "1") cn.value = "";
+    if (pn && pn.value === "1") pn.value = "";
+  }, 300);
 })();
 </script>
 </body>
