@@ -512,12 +512,56 @@ async function generate() {
     const a    = document.createElement("a"); a.href = url; a.download = name; a.click();
     URL.revokeObjectURL(url);
     showSuccess(`Report downloaded: ${name}`);
+    // Auto-fetch stats after successful generation
+    autoFetchStats();
   } catch(e) {
     const msg = e.message === "Failed to fetch"
       ? "Server is still waking up. Please wait 30 seconds and try again."
       : e.message;
     showError(msg);
   } finally { setLoading(false); }
+}
+
+// ── AUTO STATS ──
+async function autoFetchStats() {
+  // Fetch CG stats from GL files
+  if (glFiles.length) {
+    try {
+      const fd = new FormData();
+      glFiles.forEach(f => fd.append("gl_files", f));
+      fd.append("fy", document.getElementById("fy").value);
+      const res  = await fetch(`${API}/preview-gl`, {method:"POST", body:fd});
+      const data = await res.json();
+      if (res.ok && data.rows && data.rows.length) {
+        let cg = 0;
+        data.rows.forEach(r => {
+          const proceeds = parseFloat((r["Total Proceeds"]||"0").toString().replace(/,/g,"")) || 0;
+          const cost     = parseFloat((r["Adjusted Cost Basis"]||"0").toString().replace(/,/g,"")) || 0;
+          cg += (proceeds - cost);
+        });
+        document.getElementById("stat-cg").textContent = "$ " + cg.toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2});
+      }
+    } catch(e) {}
+  }
+  // Fetch dividend + tax stats from PDF files
+  if (pdfFiles.length) {
+    try {
+      const fd = new FormData();
+      pdfFiles.forEach(f => fd.append("pdf_files", f));
+      fd.append("fy", document.getElementById("fy").value);
+      const res  = await fetch(`${API}/preview-dividends`, {method:"POST", body:fd});
+      const data = await res.json();
+      if (res.ok && data.rows && data.rows.length) {
+        let div = 0, tax = 0;
+        data.rows.forEach(r => {
+          div += parseFloat((r["Dividend"]||"0").toString().replace(/,/g,"")) || 0;
+          tax += parseFloat((r["Tax"]||"0").toString().replace(/,/g,""))      || 0;
+        });
+        document.getElementById("stat-div").textContent = "$ " + div.toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2});
+        document.getElementById("stat-tax").textContent = "$ " + tax.toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2});
+      }
+    } catch(e) {}
+  }
 }
 
 // ── RESET ──
