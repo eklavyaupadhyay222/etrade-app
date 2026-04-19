@@ -149,7 +149,9 @@ tr:hover td{background:rgba(255,255,255,.02);color:#aaa}
 .divider{border:none;border-top:1px solid var(--border);margin:1.25rem 0}
 
 /* ── SELECT ── */
-select.dark-input option{background:#1a1a2e}
+select.dark-input{background-color:#161620;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:2rem;cursor:pointer}
+select.dark-input option{background:#161620;color:#e2e0db}
+input[type="text"].dark-input,input[type="password"].dark-input{color:#e2e0db}
 </style>
 </head>
 <body>
@@ -206,6 +208,12 @@ select.dark-input option{background:#1a1a2e}
       <button class="nav-logout" onclick="doLogout()">Sign Out</button>
     </div>
   </nav>
+
+  <!-- WAKE UP BAR -->
+  <div id="wake-bar" style="display:none;background:rgba(184,117,20,.12);border-bottom:1px solid rgba(184,117,20,.25);padding:8px 20px;font-size:.78rem;color:#c9972a;display:none;align-items:center;justify-content:space-between">
+    <span>Server is waking up — first request may take 30 seconds. <span id="wake-status"></span></span>
+    <button onclick="pingServer(true)" style="background:rgba(184,117,20,.2);border:1px solid rgba(184,117,20,.3);border-radius:6px;padding:3px 10px;color:#c9972a;font-size:.75rem;cursor:pointer;font-family:Inter,sans-serif">Wake Now</button>
+  </div>
 
   <div class="app-body">
 
@@ -324,6 +332,7 @@ function doLogin() {
     document.getElementById("login-screen").style.display = "none";
     document.getElementById("main-app").style.display = "block";
     sessionStorage.setItem("etrade_auth","1");
+    pingServer(false);
   } else {
     document.getElementById("login-err").style.display = "block";
     document.getElementById("login-pw-new").value = "";
@@ -348,8 +357,24 @@ function toggleLoginPw() {
   if (sessionStorage.getItem("etrade_auth") === "1") {
     document.getElementById("login-screen").style.display = "none";
     document.getElementById("main-app").style.display = "block";
+    pingServer(false);
   }
 })();
+
+async function pingServer(manual) {
+  const bar = document.getElementById("wake-bar");
+  bar.style.display = "flex";
+  document.getElementById("wake-status").textContent = "Pinging…";
+  try {
+    const res = await fetch(`${API}/health`, {signal: AbortSignal.timeout(60000)});
+    if (res.ok) {
+      document.getElementById("wake-status").textContent = "Server is ready!";
+      setTimeout(() => bar.style.display = "none", 2000);
+    }
+  } catch(e) {
+    document.getElementById("wake-status").textContent = "Still waking up, please wait…";
+  }
+}
 
 // ── FILE HANDLING ──
 function renderList(listEl, files, cb) {
@@ -489,7 +514,10 @@ async function generate() {
     URL.revokeObjectURL(url);
     showSuccess(`Report downloaded: ${name}`);
   } catch(e) {
-    showError(e.message);
+    const msg = e.message === "Failed to fetch"
+      ? "Server is still waking up. Please wait 30 seconds and try again."
+      : e.message;
+    showError(msg);
   } finally { setLoading(false); }
 }
 
