@@ -5,79 +5,183 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>E-Trade Foreign Share Working</title>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
-  /* LOGIN */
-  #login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #f4f3ef; }
-  .login-card { background: #fff; border-radius: 14px; border: 0.5px solid #d3d1c7; padding: 2.5rem; width: 100%; max-width: 380px; }
-  .login-card h2 { font-size: 1.3rem; font-weight: 600; margin-bottom: 0.2rem; font-family: system-ui, sans-serif; color: #1a1a18; }
-  .login-card p { font-size: 0.85rem; color: #888780; margin-bottom: 1.75rem; font-family: system-ui, sans-serif; }
-  .login-field { margin-bottom: 1rem; }
-  .login-field label { display: block; font-size: 0.82rem; font-weight: 500; margin-bottom: 0.35rem; color: #5f5e5a; font-family: system-ui, sans-serif; }
-  .login-field input { width: 100%; padding: 0.6rem 0.85rem; border: 0.5px solid #b4b2a9; border-radius: 8px; font-size: 0.9rem; background: #fff; color: #2c2c2a; outline: none; font-family: system-ui, sans-serif; transition: border-color 0.15s; }
-  .login-field input:focus { border-color: #1d9e75; box-shadow: 0 0 0 3px rgba(29,158,117,0.1); }
-  .pw-wrap { position: relative; }
-  .pw-wrap input { padding-right: 2.5rem; }
-  .pw-toggle { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #888780; font-size: 12px; font-family: system-ui, sans-serif; padding: 0; }
-  .login-btn { width: 100%; padding: 0.75rem; border: none; border-radius: 10px; background: #1d9e75; color: #fff; font-size: 0.95rem; font-weight: 600; cursor: pointer; font-family: system-ui, sans-serif; margin-top: 0.5rem; transition: background 0.15s; }
-  .login-btn:hover { background: #0f6e56; }
-  .login-err { display: none; margin-top: 0.75rem; padding: 0.65rem 1rem; background: #fcebeb; color: #793030; border-radius: 8px; font-size: 0.82rem; font-family: system-ui, sans-serif; }
+:root{
+  --bg:       #1e1e1e;
+  --surface:  #252526;
+  --surface2: #2d2d30;
+  --surface3: #3c3c3c;
+  --border:   #3c3c3c;
+  --border2:  #505050;
+  --text:     #d4d4d4;
+  --text2:    #9d9d9d;
+  --text3:    #6a6a6a;
+  --green:    #4ec9b0;
+  --green2:   #1a4a42;
+  --blue:     #569cd6;
+  --blue2:    #1a3a5c;
+  --red:      #f48771;
+  --red2:     #4a1f1a;
+  --yellow:   #dcdcaa;
+  --accent:   #0e639c;
+  --accent2:  #1177bb;
+}
 
-  /* MAIN APP */
-  body { font-family: system-ui, sans-serif; background: #f4f3ef; color: #2c2c2a; min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; padding: 2rem 1rem; }
-  .card { background: #fff; border-radius: 14px; border: 0.5px solid #d3d1c7; padding: 2rem; width: 100%; max-width: 680px; }
-  h1 { font-size: 1.25rem; font-weight: 600; margin-bottom: 0.25rem; }
-  .subtitle { font-size: 0.85rem; color: #5f5e5a; margin-bottom: 2rem; }
-  section { margin-bottom: 1.75rem; }
-  .section-label { font-size: 0.78rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: #888780; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 0.5px solid #d3d1c7; }
-  .field { margin-bottom: 1rem; }
-  label { display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.35rem; }
-  input[type="text"], select { width: 100%; padding: 0.55rem 0.75rem; border: 0.5px solid #b4b2a9; border-radius: 8px; font-size: 0.9rem; background: #fff; color: #2c2c2a; outline: none; transition: border-color 0.15s; }
-  input[type="text"]:focus, select:focus { border-color: #1d9e75; box-shadow: 0 0 0 3px rgba(29,158,117,0.1); }
-  .file-zone { border: 1.5px dashed #b4b2a9; border-radius: 10px; padding: 1rem 1.25rem; cursor: pointer; transition: border-color 0.15s, background 0.15s; text-align: center; background: #fafaf9; }
-  .file-zone:hover { border-color: #1d9e75; background: #f0faf6; }
-  .file-zone input[type="file"] { display: none; }
-  .file-zone .icon { font-size: 1.5rem; margin-bottom: 0.4rem; }
-  .file-zone .hint { font-size: 0.82rem; color: #888780; margin-top: 0.25rem; }
-  .file-list { list-style: none; margin-top: 0.75rem; display: flex; flex-direction: column; gap: 4px; }
-  .file-list li { display: flex; align-items: center; justify-content: space-between; background: #f1efe8; border-radius: 6px; padding: 0.4rem 0.6rem; font-size: 0.82rem; }
-  .file-list li .remove { cursor: pointer; color: #993c1d; font-size: 1rem; line-height: 1; padding: 0 4px; }
-  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-  .btn-generate { width: 100%; padding: 0.85rem; border: none; border-radius: 10px; background: #1d9e75; color: #fff; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
-  .btn-generate:hover:not(:disabled) { background: #0f6e56; }
-  .btn-generate:disabled { opacity: 0.55; cursor: not-allowed; }
-  .btn-reset { width: 100%; padding: 0.7rem; border: 0.5px solid #b4b2a9; border-radius: 10px; background: transparent; font-size: 0.9rem; cursor: pointer; margin-top: 0.6rem; color: #444; }
-  .btn-reset:hover { background: #f1efe8; }
-  .alert { padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.875rem; margin-top: 1rem; display: none; }
-  .alert.error { background: #fcebeb; color: #793030; border: 0.5px solid #f7c1c1; }
-  .alert.success { background: #eaf3de; color: #3b6d11; border: 0.5px solid #c0dd97; }
-  .spinner { display: none; align-items: center; justify-content: center; gap: 8px; margin-top: 1rem; font-size: 0.875rem; color: #5f5e5a; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .spinner svg { animation: spin 0.9s linear infinite; }
-  .preview-btn { font-size: 0.78rem; padding: 0.3rem 0.7rem; border: 0.5px solid #b4b2a9; border-radius: 6px; background: transparent; cursor: pointer; margin-top: 0.5rem; }
-  .preview-btn:hover { background: #f1efe8; }
-  .preview-table-wrap { overflow-x: auto; margin-top: 0.75rem; display: none; }
-  table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-  th { background: #f1efe8; padding: 0.4rem 0.6rem; text-align: left; font-weight: 600; border-bottom: 0.5px solid #d3d1c7; }
-  td { padding: 0.35rem 0.6rem; border-bottom: 0.5px solid #f1efe8; }
-  tr:hover td { background: #fafaf9; }
-  .tpl-reminder { color: #888780; font-style: italic; }
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ── LOGIN ── */
+#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#1e1e1e}
+.login-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:2.5rem;width:100%;max-width:360px}
+.login-logo{display:flex;align-items:center;gap:10px;margin-bottom:1.75rem}
+.login-logo .icon{width:36px;height:36px;background:var(--accent);border-radius:4px;display:flex;align-items:center;justify-content:center}
+.login-logo h2{font-size:1.1rem;font-weight:600;color:var(--text)}
+.login-logo p{font-size:.72rem;color:var(--text3);margin-top:1px}
+.login-field{margin-bottom:.9rem}
+.login-field label{display:block;font-size:.75rem;color:var(--text2);margin-bottom:.35rem;letter-spacing:.02em}
+.login-field input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:.6rem .85rem;font-size:.88rem;color:var(--text);font-family:'Inter',sans-serif;outline:none;transition:border-color .15s}
+.login-field input:focus{border-color:var(--accent2);outline:1px solid var(--accent2)}
+.login-field input::placeholder{color:var(--text3)}
+.pw-wrap{position:relative}
+.pw-wrap input{padding-right:3rem}
+.pw-toggle{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:.72rem;font-family:'Inter',sans-serif;padding:2px 4px}
+.pw-toggle:hover{color:var(--text2)}
+.login-btn{width:100%;padding:.65rem;border:none;border-radius:4px;background:var(--accent);color:#fff;font-size:.88rem;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;margin-top:.5rem;transition:background .15s}
+.login-btn:hover{background:var(--accent2)}
+.login-err{display:none;margin-top:.65rem;padding:.5rem .75rem;background:var(--red2);color:var(--red);border-radius:4px;font-size:.78rem;border-left:3px solid var(--red)}
+
+/* ── APP SHELL ── */
+#main-app{display:none;flex-direction:column;min-height:100vh}
+
+/* TITLEBAR */
+.titlebar{background:#323233;border-bottom:1px solid #252526;height:35px;display:flex;align-items:center;padding:0 16px;gap:12px;user-select:none}
+.titlebar .tb-icon{width:20px;height:20px;background:var(--accent);border-radius:3px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.titlebar .tb-title{font-size:.78rem;color:#cccccc;font-weight:400}
+.titlebar .tb-sep{color:#555;font-size:.7rem}
+.titlebar .tb-sub{font-size:.72rem;color:var(--text3)}
+.titlebar .tb-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.titlebar .tb-user{font-size:.72rem;color:var(--text3);font-family:'JetBrains Mono',monospace}
+.titlebar .tb-logout{background:none;border:1px solid var(--border);border-radius:3px;padding:2px 10px;color:var(--text3);font-size:.72rem;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s}
+.titlebar .tb-logout:hover{border-color:var(--border2);color:var(--text2)}
+
+/* SIDEBAR + CONTENT */
+.app-layout{display:flex;flex:1}
+.sidebar{width:220px;background:#252526;border-right:1px solid var(--border);padding:8px 0;flex-shrink:0}
+.sidebar-section{padding:4px 12px;font-size:.68rem;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-top:8px}
+.sidebar-item{padding:5px 12px 5px 24px;font-size:.82rem;color:var(--text2);cursor:pointer;display:flex;align-items:center;gap:8px;transition:background .1s}
+.sidebar-item:hover{background:rgba(255,255,255,.04)}
+.sidebar-item.active{background:var(--accent);color:#fff}
+.sidebar-item .si-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* MAIN CONTENT */
+.main-content{flex:1;padding:20px 28px;overflow-y:auto;max-width:860px}
+
+/* STAT CARDS */
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:14px 16px;position:relative;overflow:hidden}
+.stat-card::after{content:'';position:absolute;top:0;left:0;bottom:0;width:3px}
+.stat-card.cg::after{background:var(--green)}
+.stat-card.dv::after{background:var(--blue)}
+.stat-card.tx::after{background:var(--red)}
+.stat-card .sc-label{font-size:.68rem;color:var(--text3);letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px;padding-left:10px}
+.stat-card .sc-value{font-size:1.3rem;font-weight:600;font-family:'JetBrains Mono',monospace;padding-left:10px;line-height:1}
+.stat-card.cg .sc-value{color:var(--green)}
+.stat-card.dv .sc-value{color:var(--blue)}
+.stat-card.tx .sc-value{color:var(--red)}
+.stat-card .sc-sub{font-size:.68rem;color:var(--text3);padding-left:10px;margin-top:4px}
+.stat-card .sc-badge{display:inline-block;font-size:.62rem;padding:1px 6px;border-radius:2px;margin-left:8px;font-family:'JetBrains Mono',monospace}
+.stat-card.cg .sc-badge{background:var(--green2);color:var(--green)}
+.stat-card.dv .sc-badge{background:var(--blue2);color:var(--blue)}
+.stat-card.tx .sc-badge{background:var(--red2);color:var(--red)}
+
+/* SECTION PANELS */
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:4px;margin-bottom:12px;overflow:hidden}
+.panel-header{padding:8px 14px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.panel-header .ph-num{width:18px;height:18px;background:var(--accent);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:.68rem;color:#fff;font-weight:600;flex-shrink:0}
+.panel-header .ph-title{font-size:.78rem;font-weight:500;color:var(--text);letter-spacing:.02em;text-transform:uppercase}
+.panel-body{padding:14px}
+
+/* FILE ZONE */
+.file-zone{border:1px dashed var(--border2);border-radius:4px;padding:14px;cursor:pointer;text-align:center;background:var(--surface2);transition:all .15s;margin-bottom:8px}
+.file-zone:hover{border-color:var(--accent2);background:rgba(14,99,156,.08)}
+.file-zone input[type="file"]{display:none}
+.file-zone .fz-icon{font-size:1.25rem;margin-bottom:4px;opacity:.7}
+.file-zone .fz-text{font-size:.8rem;color:var(--text2)}
+.file-zone .fz-text strong{color:var(--text)}
+.file-zone .fz-hint{font-size:.7rem;color:var(--text3);margin-top:2px}
+
+/* FILE LIST */
+.file-list{list-style:none;display:flex;flex-direction:column;gap:3px}
+.file-list li{display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:4px 8px;font-size:.78rem;color:var(--text2);font-family:'JetBrains Mono',monospace}
+.file-list li .remove{cursor:pointer;color:var(--red);opacity:.6;padding:0 4px;font-family:'Inter',sans-serif}
+.file-list li .remove:hover{opacity:1}
+.tpl-reminder{color:var(--yellow)!important;font-style:normal!important}
+
+/* INPUTS */
+.field{margin-bottom:.85rem}
+.field label{display:block;font-size:.75rem;color:var(--text2);margin-bottom:.3rem}
+.vsc-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:.55rem .8rem;font-size:.88rem;color:var(--text);font-family:'Inter',sans-serif;outline:none;transition:border-color .15s}
+.vsc-input:focus{border-color:var(--accent2);outline:1px solid var(--accent2)}
+.vsc-input::placeholder{color:var(--text3)}
+select.vsc-input{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236a6a6a' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:2rem}
+select.vsc-input option{background:var(--surface2);color:var(--text)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* BUTTONS */
+.btn-generate{width:100%;padding:.7rem;border:none;border-radius:4px;background:var(--accent);color:#fff;font-size:.9rem;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;transition:background .15s;letter-spacing:.01em}
+.btn-generate:hover:not(:disabled){background:var(--accent2)}
+.btn-generate:disabled{opacity:.4;cursor:not-allowed}
+.btn-reset{width:100%;padding:.6rem;border:1px solid var(--border);border-radius:4px;background:transparent;font-size:.85rem;cursor:pointer;margin-top:8px;color:var(--text2);font-family:'Inter',sans-serif;transition:all .15s}
+.btn-reset:hover{background:var(--surface2);border-color:var(--border2)}
+.preview-btn{font-size:.72rem;padding:.28rem .75rem;border:1px solid var(--border);border-radius:3px;background:transparent;cursor:pointer;margin-top:6px;color:var(--text3);font-family:'Inter',sans-serif;transition:all .15s}
+.preview-btn:hover{background:var(--surface2);color:var(--text2);border-color:var(--border2)}
+
+/* ALERTS */
+.alert{padding:.6rem .85rem;border-radius:4px;font-size:.82rem;margin-top:.75rem;display:none;border-left:3px solid}
+.alert.error{background:var(--red2);color:var(--red);border-color:var(--red)}
+.alert.success{background:var(--green2);color:var(--green);border-color:var(--green)}
+
+/* SPINNER */
+.spinner{display:none;align-items:center;justify-content:center;gap:8px;margin-top:.75rem;font-size:.82rem;color:var(--text3)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner svg{animation:spin .9s linear infinite}
+
+/* PREVIEW TABLE */
+.preview-table-wrap{overflow-x:auto;margin-top:.65rem;display:none;border:1px solid var(--border);border-radius:3px}
+table{width:100%;border-collapse:collapse;font-size:.75rem}
+th{background:var(--surface2);padding:.38rem .65rem;text-align:left;font-weight:500;color:var(--text2);border-bottom:1px solid var(--border);font-size:.68rem;letter-spacing:.05em;text-transform:uppercase}
+td{padding:.35rem .65rem;border-bottom:1px solid rgba(255,255,255,.04);color:var(--text2);font-family:'JetBrains Mono',monospace;font-size:.72rem}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.02)}
+
+.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
+.field-group-title{font-size:.72rem;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
 </style>
 </head>
-<body style="padding:0;background:#f4f3ef">
+<body>
 
-<!-- LOGIN -->
+<!-- ══ LOGIN ══ -->
 <div id="login-screen">
   <div class="login-card">
-    <h2>E-Trade Working</h2>
-    <p>Sign in to access the portal</p>
+    <div class="login-logo">
+      <div class="icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>
+        </svg>
+      </div>
+      <div>
+        <h2>E-Trade Working</h2>
+        <p>Foreign Share Analysis</p>
+      </div>
+    </div>
     <div class="login-field">
-      <label>Username</label>
+      <label>USERNAME</label>
       <input type="text" id="login-user" placeholder="Enter username" autocomplete="off"
         onkeydown="if(event.key==='Enter') document.getElementById('login-pw').focus()"/>
     </div>
     <div class="login-field">
-      <label>Password</label>
+      <label>PASSWORD</label>
       <div class="pw-wrap">
         <input type="password" id="login-pw" placeholder="Enter password"
           onkeydown="if(event.key==='Enter') doLogin()"/>
@@ -89,97 +193,169 @@
   </div>
 </div>
 
-<!-- MAIN APP -->
-<div id="main-app" style="display:none;width:100%;display:none;justify-content:center;padding:2rem 1rem">
-<div class="card">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.25rem">
-    <h1>E-Trade Foreign Share Working</h1>
-    <button onclick="doLogout()" style="background:none;border:0.5px solid #d3d1c7;border-radius:6px;padding:4px 12px;font-size:0.78rem;cursor:pointer;color:#888780">Sign Out</button>
+<!-- ══ MAIN APP ══ -->
+<div id="main-app">
+
+  <!-- TITLEBAR -->
+  <div class="titlebar">
+    <div class="tb-icon">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>
+      </svg>
+    </div>
+    <span class="tb-title">E-Trade Working</span>
+    <span class="tb-sep">›</span>
+    <span class="tb-sub">Foreign Share Analysis Portal</span>
+    <div class="tb-right">
+      <span class="tb-user" id="tb-user-name"></span>
+      <button class="tb-logout" onclick="doLogout()">Sign Out</button>
+    </div>
   </div>
-  <p class="subtitle">Upload your files, fill in client details, and download the formatted report.</p>
 
-  <!-- 1. Template -->
-  <section>
-    <p class="section-label">1. Master template</p>
-    <div class="file-zone" onclick="document.getElementById('tpl-input').click()">
-      <input type="file" id="tpl-input" accept=".xlsx"/>
-      <div class="icon">📄</div>
-      <div>Click to select master template <strong>.xlsx</strong></div>
-      <div class="hint">One file only</div>
-    </div>
-    <ul class="file-list" id="tpl-list"></ul>
-  </section>
-
-  <!-- 2. Input files -->
-  <section>
-    <p class="section-label">2. Input data files</p>
-    <div class="field">
-      <label>G&L Excel files</label>
-      <div class="file-zone" onclick="document.getElementById('gl-input').click()">
-        <input type="file" id="gl-input" accept=".xlsx" multiple/>
-        <div class="icon">📊</div>
-        <div>Click to add <strong>G&L Excel</strong> files</div>
-        <div class="hint">Multiple files supported</div>
+  <div class="app-layout">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-section">Explorer</div>
+      <div class="sidebar-item active">
+        <div class="si-dot" style="background:#4ec9b0"></div>
+        Generate Report
       </div>
-      <ul class="file-list" id="gl-list"></ul>
-      <button class="preview-btn" id="gl-preview-btn" onclick="previewGL()" style="display:none">Preview capital gains →</button>
-      <div class="preview-table-wrap" id="gl-preview-wrap"><table id="gl-preview-table"></table></div>
-    </div>
-    <div class="field">
-      <label>Statement PDF files</label>
-      <div class="file-zone" onclick="document.getElementById('pdf-input').click()">
-        <input type="file" id="pdf-input" accept=".pdf" multiple/>
-        <div class="icon">📑</div>
-        <div>Click to add <strong>Statement PDF</strong> files</div>
-        <div class="hint">Multiple files supported</div>
+      <div class="sidebar-section" style="margin-top:16px">Summary</div>
+      <div class="sidebar-item" style="cursor:default">
+        <div class="si-dot" style="background:#569cd6"></div>
+        Capital Gains
       </div>
-      <ul class="file-list" id="pdf-list"></ul>
-      <button class="preview-btn" id="pdf-preview-btn" onclick="previewDivs()" style="display:none">Preview dividends →</button>
-      <div class="preview-table-wrap" id="pdf-preview-wrap"><table id="pdf-preview-table"></table></div>
-    </div>
-  </section>
-
-  <!-- 3. Client details -->
-  <section>
-    <p class="section-label">3. Client details</p>
-    <div class="row">
-      <div class="field">
-        <label>Name</label>
-        <input type="text" id="client-name" placeholder="Full name" autocomplete="off"/>
+      <div class="sidebar-item" style="cursor:default">
+        <div class="si-dot" style="background:#4ec9b0"></div>
+        Dividends
       </div>
-      <div class="field">
-        <label>PAN</label>
-        <input type="text" id="pan" placeholder="ABCDE1234F" maxlength="10" autocomplete="off"/>
+      <div class="sidebar-item" style="cursor:default">
+        <div class="si-dot" style="background:#f48771"></div>
+        Tax Withheld
       </div>
     </div>
-    <div class="field" style="max-width:220px">
-      <label>Financial year</label>
-      <select id="fy" onchange="saveFY(this.value)">
-        <option>FY 2023-24</option>
-        <option selected>FY 2024-25</option>
-        <option>FY 2025-26</option>
-      </select>
-    </div>
-  </section>
 
-  <button class="btn-generate" id="gen-btn" onclick="generate()">Generate Report</button>
-  <button class="btn-reset" onclick="resetForm()">Reset</button>
+    <!-- CONTENT -->
+    <div class="main-content">
 
-  <div class="spinner" id="spinner">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1d9e75" stroke-width="2.5" stroke-linecap="round">
-      <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
-    </svg>
-    Generating report…
-  </div>
-  <div class="alert error" id="alert-error"></div>
-  <div class="alert success" id="alert-success"></div>
-</div>
-</div>
+      <!-- STAT CARDS -->
+      <div class="stat-row">
+        <div class="stat-card cg">
+          <div class="sc-label">Total Capital Gains</div>
+          <div class="sc-value" id="stat-cg">—<span class="sc-badge" id="stat-cg-badge" style="display:none"></span></div>
+          <div class="sc-sub">From G&L files</div>
+        </div>
+        <div class="stat-card dv">
+          <div class="sc-label">Total Dividend</div>
+          <div class="sc-value" id="stat-div">—<span class="sc-badge" id="stat-div-badge" style="display:none"></span></div>
+          <div class="sc-sub">From statement PDFs</div>
+        </div>
+        <div class="stat-card tx">
+          <div class="sc-label">Total Tax Withheld</div>
+          <div class="sc-value" id="stat-tax">—<span class="sc-badge" id="stat-tax-badge" style="display:none"></span></div>
+          <div class="sc-sub">From statement PDFs</div>
+        </div>
+      </div>
+
+      <!-- 1. TEMPLATE -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="ph-num">1</div>
+          <span class="ph-title">Master Template</span>
+        </div>
+        <div class="panel-body">
+          <div class="file-zone" onclick="document.getElementById('tpl-input').click()">
+            <input type="file" id="tpl-input" accept=".xlsx"/>
+            <div class="fz-icon">📄</div>
+            <div class="fz-text">Click to select <strong>.xlsx</strong> template</div>
+            <div class="fz-hint">One file only</div>
+          </div>
+          <ul class="file-list" id="tpl-list"></ul>
+        </div>
+      </div>
+
+      <!-- 2. INPUT FILES -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="ph-num">2</div>
+          <span class="ph-title">Input Data Files</span>
+        </div>
+        <div class="panel-body">
+          <div class="field-group-title">G&L Excel Files</div>
+          <div class="file-zone" onclick="document.getElementById('gl-input').click()">
+            <input type="file" id="gl-input" accept=".xlsx" multiple/>
+            <div class="fz-icon">📊</div>
+            <div class="fz-text">Click to add <strong>G&L Excel</strong> files</div>
+            <div class="fz-hint">Multiple files supported</div>
+          </div>
+          <ul class="file-list" id="gl-list"></ul>
+          <button class="preview-btn" id="gl-preview-btn" onclick="previewGL()" style="display:none">▶ Preview capital gains</button>
+          <div class="preview-table-wrap" id="gl-preview-wrap"><table id="gl-preview-table"></table></div>
+
+          <div class="divider"></div>
+
+          <div class="field-group-title">Statement PDF Files</div>
+          <div class="file-zone" onclick="document.getElementById('pdf-input').click()">
+            <input type="file" id="pdf-input" accept=".pdf" multiple/>
+            <div class="fz-icon">📑</div>
+            <div class="fz-text">Click to add <strong>Statement PDF</strong> files</div>
+            <div class="fz-hint">Multiple files supported</div>
+          </div>
+          <ul class="file-list" id="pdf-list"></ul>
+          <button class="preview-btn" id="pdf-preview-btn" onclick="previewDivs()" style="display:none">▶ Preview dividends</button>
+          <div class="preview-table-wrap" id="pdf-preview-wrap"><table id="pdf-preview-table"></table></div>
+        </div>
+      </div>
+
+      <!-- 3. CLIENT DETAILS -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="ph-num">3</div>
+          <span class="ph-title">Client Details</span>
+        </div>
+        <div class="panel-body">
+          <div class="row2">
+            <div class="field">
+              <label>NAME</label>
+              <input type="text" id="client-name" class="vsc-input" placeholder="Full name" autocomplete="off"/>
+            </div>
+            <div class="field">
+              <label>PAN</label>
+              <input type="text" id="pan" class="vsc-input" placeholder="ABCDE1234F" maxlength="10" autocomplete="off"/>
+            </div>
+          </div>
+          <div class="field" style="max-width:200px">
+            <label>FINANCIAL YEAR</label>
+            <select id="fy" class="vsc-input" onchange="saveFY(this.value)">
+              <option>FY 2023-24</option>
+              <option selected>FY 2024-25</option>
+              <option>FY 2025-26</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACTIONS -->
+      <button class="btn-generate" id="gen-btn" onclick="generate()">⚡ Generate Report</button>
+      <button class="btn-reset" onclick="resetForm()">Reset</button>
+
+      <div class="spinner" id="spinner">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ec9b0" stroke-width="2.5" stroke-linecap="round">
+          <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+        </svg>
+        Generating report…
+      </div>
+      <div class="alert error" id="alert-error"></div>
+      <div class="alert success" id="alert-success"></div>
+
+    </div><!-- end main-content -->
+  </div><!-- end app-layout -->
+</div><!-- end main-app -->
 
 <script>
-const API          = "https://etrade-app-production.up.railway.app";
-const LOGIN_USER   = "Taxhelp";
-const LOGIN_PASS   = "Trivbang@2025";
+const API        = "https://etrade-app.onrender.com";
+const LOGIN_USER = "Taxhelp";
+const LOGIN_PASS = "Trivbang@2025";
 
 let tplFile = null;
 const glFiles = [], pdfFiles = [];
@@ -191,7 +367,9 @@ function doLogin() {
   if (user === LOGIN_USER && pw === LOGIN_PASS) {
     document.getElementById("login-screen").style.display  = "none";
     document.getElementById("main-app").style.display      = "flex";
+    document.getElementById("tb-user-name").textContent    = user;
     sessionStorage.setItem("etrade_auth", "1");
+    sessionStorage.setItem("etrade_user", user);
   } else {
     document.getElementById("login-err").style.display = "block";
     document.getElementById("login-pw").value = "";
@@ -215,8 +393,49 @@ function togglePw() {
   if (sessionStorage.getItem("etrade_auth") === "1") {
     document.getElementById("login-screen").style.display = "none";
     document.getElementById("main-app").style.display     = "flex";
+    document.getElementById("tb-user-name").textContent   = sessionStorage.getItem("etrade_user") || "";
   }
 })();
+
+// ── STATS ──
+function setStatCG(val, label) {
+  const el = document.getElementById("stat-cg");
+  const badge = document.getElementById("stat-cg-badge");
+  el.childNodes[0].textContent = val;
+  if (label) { badge.textContent = label; badge.style.display = "inline"; }
+}
+function setStatDiv(val, label) {
+  const el = document.getElementById("stat-div");
+  const badge = document.getElementById("stat-div-badge");
+  el.childNodes[0].textContent = val;
+  if (label) { badge.textContent = label; badge.style.display = "inline"; }
+}
+function setStatTax(val, label) {
+  const el = document.getElementById("stat-tax");
+  const badge = document.getElementById("stat-tax-badge");
+  el.childNodes[0].textContent = val;
+  if (label) { badge.textContent = label; badge.style.display = "inline"; }
+}
+function fmtNum(n) {
+  return "$ " + n.toLocaleString("en-IN", {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+function calcCGFromRows(rows) {
+  let cg = 0;
+  rows.forEach(r => {
+    const p = parseFloat((r["Total Proceeds"]     || "0").toString().replace(/,/g,"")) || 0;
+    const c = parseFloat((r["Adjusted Cost Basis"] || "0").toString().replace(/,/g,"")) || 0;
+    cg += (p - c);
+  });
+  return cg;
+}
+function calcDivTaxFromRows(rows) {
+  let div = 0, tax = 0;
+  rows.forEach(r => {
+    div += parseFloat((r["Dividend"] || "0").toString().replace(/,/g,"")) || 0;
+    tax += parseFloat((r["Tax"]      || "0").toString().replace(/,/g,"")) || 0;
+  });
+  return { div, tax };
+}
 
 // ── FILES ──
 function renderList(listEl, files, cb) {
@@ -236,7 +455,7 @@ function renderTpl() {
     ul.innerHTML = `<li><span>📎 ${tplFile.name}</span><span class="remove" onclick="removeTpl()">✕</span></li>`;
   } else {
     const last = localStorage.getItem("lastTemplateName");
-    ul.innerHTML = last ? `<li class="tpl-reminder"><span>⚠️ Please re-select: ${last}</span></li>` : "";
+    ul.innerHTML = last ? `<li class="tpl-reminder"><span>⚠ Please re-select: ${last}</span></li>` : "";
   }
 }
 function removeTpl() { tplFile = null; localStorage.removeItem("lastTemplateName"); renderTpl(); document.getElementById("tpl-input").value = ""; }
@@ -250,7 +469,7 @@ function renderGL() {
   document.getElementById("gl-preview-btn").style.display = glFiles.length ? "inline-block" : "none";
   document.getElementById("gl-preview-wrap").style.display = "none";
 }
-function removeGL(i) { glFiles.splice(i, 1); renderGL(); }
+function removeGL(i) { glFiles.splice(i, 1); renderGL(); setStatCG("—", null); document.getElementById("stat-cg-badge").style.display="none"; }
 
 document.getElementById("pdf-input").addEventListener("change", e => {
   Array.from(e.target.files).forEach(f => pdfFiles.push(f)); renderPDF();
@@ -260,7 +479,7 @@ function renderPDF() {
   document.getElementById("pdf-preview-btn").style.display = pdfFiles.length ? "inline-block" : "none";
   document.getElementById("pdf-preview-wrap").style.display = "none";
 }
-function removePDF(i) { pdfFiles.splice(i, 1); renderPDF(); }
+function removePDF(i) { pdfFiles.splice(i, 1); renderPDF(); setStatDiv("—",null); setStatTax("—",null); document.getElementById("stat-div-badge").style.display="none"; document.getElementById("stat-tax-badge").style.display="none"; }
 
 // ── FORM ──
 function buildFormData() {
@@ -282,16 +501,21 @@ function showTable(tableEl, wrapEl, rows) {
   wrapEl.style.display = "block";
 }
 
+// ── PREVIEW (updates stats) ──
 async function previewGL() {
   if (!glFiles.length) return;
   const fd = new FormData();
   glFiles.forEach(f => fd.append("gl_files", f));
   fd.append("fy", document.getElementById("fy").value);
   try {
-    const res  = await fetch(`${API}/preview-gl`, { method: "POST", body: fd });
+    const res  = await fetch(`${API}/preview-gl`, {method:"POST", body:fd});
     const data = await res.json();
     if (!res.ok) throw new Error(data.detail);
     showTable(document.getElementById("gl-preview-table"), document.getElementById("gl-preview-wrap"), data.rows);
+    if (data.rows.length) {
+      const cg = calcCGFromRows(data.rows);
+      setStatCG(fmtNum(cg), `${data.rows.length} txn`);
+    }
   } catch(e) { showError(e.message); }
 }
 
@@ -301,21 +525,29 @@ async function previewDivs() {
   pdfFiles.forEach(f => fd.append("pdf_files", f));
   fd.append("fy", document.getElementById("fy").value);
   try {
-    const res  = await fetch(`${API}/preview-dividends`, { method: "POST", body: fd });
+    const res  = await fetch(`${API}/preview-dividends`, {method:"POST", body:fd});
     const data = await res.json();
     if (!res.ok) throw new Error(data.detail);
     showTable(document.getElementById("pdf-preview-table"), document.getElementById("pdf-preview-wrap"), data.rows);
+    if (data.rows.length) {
+      const {div, tax} = calcDivTaxFromRows(data.rows);
+      setStatDiv(fmtNum(div), `${data.rows.length} entries`);
+      setStatTax(fmtNum(tax), "withheld");
+    }
   } catch(e) { showError(e.message); }
 }
 
+// ── GENERATE (also updates stats) ──
 async function generate() {
   clearAlerts();
   if (!tplFile)                                              { showError("Please select a master template."); return; }
   if (!document.getElementById("client-name").value.trim()) { showError("Please enter client name.");        return; }
   if (!document.getElementById("pan").value.trim())         { showError("Please enter PAN number.");         return; }
   setLoading(true);
+  // Fetch stats in parallel while generating
+  fetchStatsQuietly();
   try {
-    const res = await fetch(`${API}/generate`, { method: "POST", body: buildFormData() });
+    const res = await fetch(`${API}/generate`, {method:"POST", body:buildFormData()});
     if (!res.ok) { const err = await res.json(); throw new Error(err.detail || "Server error"); }
     const blob = await res.blob();
     const cd   = res.headers.get("Content-Disposition") || "";
@@ -323,10 +555,42 @@ async function generate() {
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement("a"); a.href = url; a.download = name; a.click();
     URL.revokeObjectURL(url);
-    showSuccess(`Report downloaded: ${name}`);
+    showSuccess(`✓ Report downloaded: ${name}`);
   } catch(e) {
     showError(e.message === "Failed to fetch" ? "Server is waking up. Please wait 30 seconds and try again." : e.message);
   } finally { setLoading(false); }
+}
+
+async function fetchStatsQuietly() {
+  // GL stats
+  if (glFiles.length) {
+    try {
+      const fd = new FormData();
+      glFiles.forEach(f => fd.append("gl_files", f));
+      fd.append("fy", document.getElementById("fy").value);
+      const res  = await fetch(`${API}/preview-gl`, {method:"POST", body:fd});
+      const data = await res.json();
+      if (res.ok && data.rows && data.rows.length) {
+        const cg = calcCGFromRows(data.rows);
+        setStatCG(fmtNum(cg), `${data.rows.length} txn`);
+      }
+    } catch(e) {}
+  }
+  // PDF stats
+  if (pdfFiles.length) {
+    try {
+      const fd = new FormData();
+      pdfFiles.forEach(f => fd.append("pdf_files", f));
+      fd.append("fy", document.getElementById("fy").value);
+      const res  = await fetch(`${API}/preview-dividends`, {method:"POST", body:fd});
+      const data = await res.json();
+      if (res.ok && data.rows && data.rows.length) {
+        const {div, tax} = calcDivTaxFromRows(data.rows);
+        setStatDiv(fmtNum(div), `${data.rows.length} entries`);
+        setStatTax(fmtNum(tax), "withheld");
+      }
+    } catch(e) {}
+  }
 }
 
 function resetForm() {
@@ -334,6 +598,8 @@ function resetForm() {
   renderGL(); renderPDF();
   document.getElementById("client-name").value = "";
   document.getElementById("pan").value = "";
+  setStatCG("—", null); setStatDiv("—", null); setStatTax("—", null);
+  ["stat-cg-badge","stat-div-badge","stat-tax-badge"].forEach(id => document.getElementById(id).style.display = "none");
   clearAlerts();
 }
 function setLoading(on) {
@@ -352,7 +618,7 @@ function showSuccess(msg) { const el = document.getElementById("alert-success");
   const lastName = localStorage.getItem("lastTemplateName");
   if (lastName) {
     document.getElementById("tpl-list").innerHTML =
-      `<li class="tpl-reminder"><span>⚠️ Please re-select: ${lastName}</span></li>`;
+      `<li class="tpl-reminder"><span>⚠ Please re-select: ${lastName}</span></li>`;
   }
 })();
 </script>
