@@ -62,32 +62,6 @@ body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--tex
 /* ── LAYOUT ── */
 .app-body{max-width:800px;margin:0 auto;padding:2rem 1.5rem}
 
-/* ── STAT CARDS ── */
-.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:2rem}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.2rem 1.4rem;position:relative;overflow:hidden;transition:all .25s;cursor:default}
-.stat-card:hover{border-color:var(--border2);transform:translateY(-2px)}
-.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;opacity:.8}
-.stat-card::after{content:'';position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;transition:opacity .25s;pointer-events:none}
-.stat-card:hover::after{opacity:1}
-.stat-card.cg::before{background:linear-gradient(90deg,var(--green),transparent)}
-.stat-card.cg::after{background:radial-gradient(ellipse at 0% 0%,var(--green-glow),transparent 70%)}
-.stat-card.cg:hover{box-shadow:0 8px 30px rgba(0,214,143,.12)}
-.stat-card.dv::before{background:linear-gradient(90deg,var(--blue),transparent)}
-.stat-card.dv::after{background:radial-gradient(ellipse at 0% 0%,var(--blue-glow),transparent 70%)}
-.stat-card.dv:hover{box-shadow:0 8px 30px rgba(77,159,255,.12)}
-.stat-card.tx::before{background:linear-gradient(90deg,var(--red),transparent)}
-.stat-card.tx::after{background:radial-gradient(ellipse at 0% 0%,var(--red-glow),transparent 70%)}
-.stat-card.tx:hover{box-shadow:0 8px 30px rgba(255,107,107,.12)}
-.s-label{font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem;position:relative;z-index:1}
-.stat-card.cg .s-label{color:var(--green)}
-.stat-card.dv .s-label{color:var(--blue)}
-.stat-card.tx .s-label{color:var(--red)}
-.s-value{font-size:1.45rem;font-weight:700;letter-spacing:-.03em;line-height:1;font-family:'JetBrains Mono',monospace;position:relative;z-index:1}
-.stat-card.cg .s-value{color:#fff}
-.stat-card.dv .s-value{color:#fff}
-.stat-card.tx .s-value{color:#fff}
-.s-sub{font-size:.68rem;color:var(--muted2);margin-top:.4rem;position:relative;z-index:1}
-
 /* ── SECTION CARDS ── */
 .s-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.5rem;margin-bottom:1.1rem;transition:border-color .2s}
 .s-card:focus-within{border-color:var(--border2)}
@@ -215,25 +189,6 @@ tr:hover td{background:rgba(255,255,255,.02);color:#aaa}
   </div>
 
   <div class="app-body">
-
-    <!-- SUMMARY STATS -->
-    <div class="stats-row">
-      <div class="stat-card cg">
-        <div class="s-label">Total Capital Gains</div>
-        <div class="s-value" id="stat-cg">₹ —</div>
-        <div class="s-sub">From G&L files</div>
-      </div>
-      <div class="stat-card dv">
-        <div class="s-label">Total Dividend</div>
-        <div class="s-value" id="stat-div">$ —</div>
-        <div class="s-sub">From statement PDFs</div>
-      </div>
-      <div class="stat-card tx">
-        <div class="s-label">Total Tax Withheld</div>
-        <div class="s-value" id="stat-tax">$ —</div>
-        <div class="s-sub">From statement PDFs</div>
-      </div>
-    </div>
 
     <!-- 1. Template -->
     <div class="s-card">
@@ -365,7 +320,7 @@ async function pingServer(manual) {
   bar.style.display = "flex";
   document.getElementById("wake-status").textContent = "Pinging…";
   try {
-    const res = await fetch(`${API}/health`, {signal: AbortSignal.timeout(60000)});
+    const res = await fetch(`${API}/health`, {signal: AbortSignal.timeout(120000)});
     if (res.ok) {
       document.getElementById("wake-status").textContent = "Server is ready!";
       setTimeout(() => bar.style.display = "none", 2000);
@@ -422,12 +377,12 @@ function removePDF(i) { pdfFiles.splice(i,1); renderPDF(); }
 
 // ── STATS ──
 function updateCGStat() {
-  if (!glFiles.length) { document.getElementById("stat-cg").textContent = "₹ —"; return; }
+  if (!glFiles.length) {  return; }
 }
 function setStats(cgTotal, divTotal, taxTotal) {
-  document.getElementById("stat-cg").textContent  = cgTotal  !== null ? "$ " + cgTotal.toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2})  : "₹ —";
-  document.getElementById("stat-div").textContent = divTotal !== null ? "$ " + divTotal.toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2}) : "$ —";
-  document.getElementById("stat-tax").textContent = taxTotal !== null ? "$ " + taxTotal.toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2}) : "$ —";
+  
+  
+  
 }
 
 // ── PREVIEW ──
@@ -468,7 +423,7 @@ async function previewGL() {
         const cost     = parseFloat((r["Adjusted Cost Basis"]||"0").toString().replace(/,/g,"")) || 0;
         cg += (proceeds - cost);
       });
-      document.getElementById("stat-cg").textContent = "$ " + cg.toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2});
+      
     }
   } catch(e) { showError(e.message); }
 }
@@ -489,8 +444,8 @@ async function previewDivs() {
         div += parseFloat((r["Dividend"]||"0").toString().replace(/,/g,"")) || 0;
         tax += parseFloat((r["Tax"]||"0").toString().replace(/,/g,""))      || 0;
       });
-      document.getElementById("stat-div").textContent = "$ " + div.toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2});
-      document.getElementById("stat-tax").textContent = "$ " + tax.toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2});
+      
+      
     }
   } catch(e) { showError(e.message); }
 }
@@ -503,7 +458,7 @@ async function generate() {
   if (!document.getElementById("pan").value.trim())         { showError("Please enter PAN number.");         return; }
   setLoading(true);
   try {
-    const res = await fetch(`${API}/generate`, {method:"POST", body:buildFormData()});
+    const res = await fetch(`${API}/generate`, {method:"POST", body:buildFormData(), signal: AbortSignal.timeout(120000)});
     if (!res.ok) { const err = await res.json(); throw new Error(err.detail || "Server error"); }
     const blob = await res.blob();
     const cd   = res.headers.get("Content-Disposition") || "";
@@ -512,7 +467,6 @@ async function generate() {
     const a    = document.createElement("a"); a.href = url; a.download = name; a.click();
     URL.revokeObjectURL(url);
     showSuccess(`Report downloaded: ${name}`);
-    autoFetchStats();
   } catch(e) {
     const isWaking = e.message === "Failed to fetch" || e.message.includes("fetch");
     if (isWaking) {
@@ -521,48 +475,6 @@ async function generate() {
       showError(e.message);
     }
   } finally { setLoading(false); }
-}
-
-// ── AUTO STATS ──
-async function autoFetchStats() {
-  // Fetch CG stats from GL files
-  if (glFiles.length) {
-    try {
-      const fd = new FormData();
-      glFiles.forEach(f => fd.append("gl_files", f));
-      fd.append("fy", document.getElementById("fy").value);
-      const res  = await fetch(`${API}/preview-gl`, {method:"POST", body:fd});
-      const data = await res.json();
-      if (res.ok && data.rows && data.rows.length) {
-        let cg = 0;
-        data.rows.forEach(r => {
-          const proceeds = parseFloat((r["Total Proceeds"]||"0").toString().replace(/,/g,"")) || 0;
-          const cost     = parseFloat((r["Adjusted Cost Basis"]||"0").toString().replace(/,/g,"")) || 0;
-          cg += (proceeds - cost);
-        });
-        document.getElementById("stat-cg").textContent = "$ " + cg.toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2});
-      }
-    } catch(e) {}
-  }
-  // Fetch dividend + tax stats from PDF files
-  if (pdfFiles.length) {
-    try {
-      const fd = new FormData();
-      pdfFiles.forEach(f => fd.append("pdf_files", f));
-      fd.append("fy", document.getElementById("fy").value);
-      const res  = await fetch(`${API}/preview-dividends`, {method:"POST", body:fd});
-      const data = await res.json();
-      if (res.ok && data.rows && data.rows.length) {
-        let div = 0, tax = 0;
-        data.rows.forEach(r => {
-          div += parseFloat((r["Dividend"]||"0").toString().replace(/,/g,"")) || 0;
-          tax += parseFloat((r["Tax"]||"0").toString().replace(/,/g,""))      || 0;
-        });
-        document.getElementById("stat-div").textContent = "$ " + div.toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2});
-        document.getElementById("stat-tax").textContent = "$ " + tax.toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2});
-      }
-    } catch(e) {}
-  }
 }
 
 // ── RESET ──
