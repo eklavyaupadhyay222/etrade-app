@@ -496,12 +496,22 @@ async function previewDivs() {
 }
 
 // ── GENERATE ──
+let retryTimer = null;
+let retryCount = 0;
+const MAX_RETRIES = 10;
+
 async function generate() {
   clearAlerts();
-  if (!tplFile)                                          { showError("Please select a master template.");  return; }
-  if (!document.getElementById("client-name").value.trim()) { showError("Please enter client name.");         return; }
-  if (!document.getElementById("pan").value.trim())         { showError("Please enter PAN number.");          return; }
+  if (!tplFile)                                              { showError("Please select a master template."); return; }
+  if (!document.getElementById("client-name").value.trim()) { showError("Please enter client name.");        return; }
+  if (!document.getElementById("pan").value.trim())         { showError("Please enter PAN number.");         return; }
+  retryCount = 0;
+  await tryGenerate();
+}
+
+async function tryGenerate() {
   setLoading(true);
+  clearAlerts();
   try {
     const res = await fetch(`${API}/generate`, {method:"POST", body:buildFormData()});
     if (!res.ok) { const err = await res.json(); throw new Error(err.detail || "Server error"); }
@@ -512,14 +522,44 @@ async function generate() {
     const a    = document.createElement("a"); a.href = url; a.download = name; a.click();
     URL.revokeObjectURL(url);
     showSuccess(`Report downloaded: ${name}`);
-    // Auto-fetch stats after successful generation
     autoFetchStats();
+    retryCount = 0;
+    setLoading(false);
   } catch(e) {
-    const msg = e.message === "Failed to fetch"
-      ? "Server is still waking up. Please wait 30 seconds and try again."
-      : e.message;
-    showError(msg);
-  } finally { setLoading(false); }
+    const isWaking = e.message === "Failed to fetch" || e.message.includes("fetch");
+    if (isWaking && retryCount < MAX_RETRIES) {
+      retryCount++;
+      let secs = 30;
+      showRetrying(secs, retryCount);
+      retryTimer = setInterval(() => {
+        secs--;
+        if (secs <= 0) {
+          clearInterval(retryTimer);
+          tryGenerate();
+        } else {
+          showRetrying(secs, retryCount);
+        }
+      }, 1000);
+    } else {
+      showError(e.message);
+      setLoading(false);
+    }
+  }
+}
+
+function showRetrying(secs, attempt) {
+  const el = document.getElementById("alert-error");
+  el.style.display = "block";
+  el.innerHTML = `Server is waking up — auto retrying in <strong>${secs}s</strong> (attempt ${attempt}/${MAX_RETRIES})&nbsp;&nbsp;
+    <span onclick="cancelRetry()" style="cursor:pointer;text-decoration:underline;opacity:.8">Cancel</span>`;
+}
+
+function cancelRetry() {
+  if (retryTimer) { clearInterval(retryTimer); retryTimer = null; }
+  retryCount = 0;
+  setLoading(false);
+  clearAlerts();
+  showError("Cancelled. Please try again when server is ready.");
 }
 
 // ── AUTO STATS ──
